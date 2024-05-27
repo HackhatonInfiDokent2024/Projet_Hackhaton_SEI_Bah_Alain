@@ -1,85 +1,113 @@
-﻿using AppliVacationProject.BusinessLogic.Interfaces.InterfacesRepository;
-using AppliVacationProject.DataAccess.Data;
-using AppliVacationProject.DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
+﻿//using AppliWorkFlowProject.DataAccess.Models; // Assuming this is the correct namespace for the 'Users' model
+//using AppliWorkFlowProject.DataAccess.Data; // Assuming this is the correct namespace for the database context
+//using Microsoft.EntityFrameworkCore; // Assuming you're using Entity Framework Core for data access
+//using AppliWorkFlowProject.BusinessLogic.Interfaces.InterfacesRepository;
 
-namespace AppliVacationProject.BusinessLogic.Services
-{
-    public class UsersRepository : IUsersRepository
-    {
-        private readonly AppliVacationDbContext _databaseContext;
+//namespace AppliWorkFlowProject.BusinessLogic.Services
+//{
+//    public class UsersRepository : IUsersRepository
+//    {
+//        private readonly AppliWorkFlowDbContext _databaseContext;
+//        private object value;
 
-        public UsersRepository(AppliVacationDbContext databasecontext)
-        {
-            _databaseContext = databasecontext;
-        }
+//        public UsersRepository(AppliWorkFlowDbContext databaseContext)
+//        {
+//            _databaseContext = databaseContext;
+//        }
 
-        //Récupère tous les utilisateur de manière asynchrone incluant leur roles distinct
-        public async Task<IEnumerable<Users>> GetAllUsersAsync(CancellationToken cancellationToken)
-        {
-            return await _databaseContext.TUsers.ToListAsync(cancellationToken: cancellationToken);
-            /*return await _databaseContext.Users.Include(u => u.Roles).ToListAsync();*/
-        }
+//        // Retrieves all users asynchronously, including their distinct roles
+//        public async Task<IEnumerable<Users>> GetAllUsersAsync(CancellationToken cancellationToken)
+//        {
+//            // Note: This query assumes that users have a 'Roles' property that holds a collection of role objects
+//            var usersWithDistinctRoles = await _databaseContext.Users
+//                .Include(u => u.Roles.Select(r => r.RoleName))
+//                .Select(u => new Users
+//                {
+//                    UserId = u.UserId,
+//                    FirstName = u.FirstName,
+//                    LastName = u.LastName,
+//                    Email = u.Email,
+//                    Roles = u.Roles.Select(r => r.RoleName).Distinct().ToList()
+//                })
+//                .ToListAsync(cancellationToken);
 
-        //Récupère un utilisateur par ID de manière asynchrone
-        public async Task<Users> GetUsersByIdAsync(int id, CancellationToken cancellationToken)
-        {
-            // Récupère un utilisateur en fonction de son ID
-            return await _databaseContext.TUsers.FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
-        }
+//            return usersWithDistinctRoles;
+//        }
 
-        //Ajoute un nouveau utilisateur de manière asynchrone
-        public async Task<Users> CreateUsersAsync(Users user, CancellationToken cancellationToken)
-        {
-            // Ajoute un utilisateur à la base de données
-            _databaseContext.TUsers.Add(user);
-            // Enregistre les modifications dans la base de données
-            await _databaseContext.SaveChangesAsync(cancellationToken);
-            // Renvoie l'utilisateur
-            return user;
-        }
+//        // Retrieves a user by ID asynchronously
+//        public async Task<Users> GetUsersByIdAsync(int id, CancellationToken cancellationToken)
+//        {
+//            // Retrieves a user based on their ID
+//            var user = await _databaseContext.Users.FindAsync(id, cancellationToken);
 
-        // Met à jour un Utilisateur existant de manière asynchrone
-        public async Task<bool> UpdateUsersAsync(int id, Users user, CancellationToken cancellationToken)
-        {
-            // Modifie l'état de l'entité pour indiquer qu'elle est modifiée
-            _databaseContext.Entry(user).State = EntityState.Modified;
+//            if (user != null)
+//            {
+//                // Eagerly load the user's roles
+//                await _databaseContext.Entry(user).Reference(u => u.Roles).LoadAsync(cancellationToken);
 
-            try
-            {
-                // Enregistre les modifications dans la base de données
-                await _databaseContext.SaveChangesAsync(cancellationToken);
-                // Renvoie un booléen indiquant le succès de la mise à jour
-                return true;
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Gestion des conflits de concurrence si nécessaire
-                return false;
-            }
-        }
+//                // Return the user with loaded roles
+//                return user;
+//            }
 
-       // Supprime un utilisateur par ID de manière asynchrone
-        public async Task<bool> DeleteUsersAsync(int id, CancellationToken cancellationToken)
-        {
-            // Recherche l'utilisateur en fonction de son ID
-            var userToDelete = await _databaseContext.TUsers.FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
+//            return null;
+//        }
 
-            if (userToDelete != null)
-            {
-                // Supprime l'utilisateur de la base de données
-                _databaseContext.TUsers.Remove(userToDelete);
-                // Enregistre les modifications dans la base de données
-                await _databaseContext.SaveChangesAsync();
-                // Renvoie un booléen indiquant le succès de la suppression
-                return true;
-            }
-            else
-            {
-                // Renvoie false si l'utilisateur n'est pas trouvé
-                return false;
-            }
-        }
-    }
-}
+//        // Creates a new user asynchronously
+//        public async Task<Users> CreateUsersAsync(Users user, CancellationToken cancellationToken)
+//        {
+//            // Adds the user to the database
+//            await _databaseContext.Users.AddAsync(user, cancellationToken);
 
+//            // Saves the changes to the database
+//            await _databaseContext.SaveChangesAsync(cancellationToken);
+
+//            // Return the newly created user
+//            return user;
+//        }
+
+//        // Updates an existing user asynchronously
+//        public async Task<bool> UpdateUsersAsync(Users user, CancellationToken cancellationToken)
+//        {
+//            // Attach the user to the context for tracking changes
+//            value =  _databaseContext.Users.Attach(user);
+
+//            // Set the entity state to 'Modified'
+//            _databaseContext.Entry(user).State = EntityState.Modified;
+
+//            try
+//            {
+//                // Save the changes to the database
+//                await _databaseContext.SaveChangesAsync(cancellationToken);
+
+//                // Return true if the update was successful
+//                return true;
+//            }
+//            catch (DbUpdateConcurrencyException)
+//            {
+//                // Handle concurrency conflicts if necessary
+//                return false;
+//            }
+//        }
+
+//        // Deletes a user by ID asynchronously
+//        public async Task<bool> DeleteUsersAsync(int id, CancellationToken cancellationToken)
+//        {
+//            // Retrieves the user to be deleted
+//            var userToDelete = await _databaseContext.Users.FindAsync(id, cancellationToken);
+
+//            if (userToDelete != null)
+//            {
+//                // Removes the user from the database
+//                _databaseContext.Users.Remove(userToDelete);
+
+//                // Saves the changes to the database
+//                await _databaseContext.SaveChangesAsync(cancellationToken);
+
+//                // Return true if the deletion was successful
+//                return true;
+//            }
+
+//            return false;
+//        }
+//    }
+//}

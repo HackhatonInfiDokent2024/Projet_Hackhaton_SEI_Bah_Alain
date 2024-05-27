@@ -1,84 +1,58 @@
-﻿using AppliVacationProject.BusinessLogic.Interfaces.InterfacesRepository;
-using AppliVacationProject.DataAccess.Data;
-using AppliVacationProject.DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
+﻿//using AppliWorkFlowProject.BusinessLogic.Interfaces.InterfacesRepository;
+//using AppliWorkFlowProject.DataAccess.Data;
+//using MongoDB.Driver;
 
-namespace AppliVacationProject.DataAccess.Repository
-{
-    public class VacationsRepository : IVacationRepository
-    {
-        private readonly AppliVacationDbContext _databaseContext;
+//namespace AppliWorkFlowProject.DataAccess.Repository
+//{
+//    public class WorkflowRepository : IWorkFlowRepository
+//    {
+//        private readonly IworkFlowCollection<WorkFlow> _database;
 
-        public VacationsRepository(AppliVacationDbContext databaseContext)
-        {
-            _databaseContext = databaseContext;
-        }
+//        public WorkflowRepository(IworkFlowCollection<WorkFlow> database)
+//        {
+//            _database = database;
+//        }
 
-       // Recupère tous les vacations de manière asynchrone incluant l'utilisateur qui a demandé un congé
-        public async Task<IEnumerable<Vacation>> GetAllAsync(CancellationToken cancellationToken)
-        {
-            return await _databaseContext.Vacations.ToListAsync();
-            /*return await _databaseContext.Vacations.Include(u => u.Users).ToListAsync();*/
-        }
-      
+//        // Récupère tous les workflows de manière asynchrone
+//        public async Task<IEnumerable<WorkFlow>> GetAllAsync(CancellationToken cancellationToken)
+//        {
+//            return await _database.Collection.FindAsync(filter => true, cancellationToken: cancellationToken).ToListAsync();
+//        }
 
-        //Récupère un congé (Vacation) par ID de manière asynchrone
-        public async Task<Vacation> GetByIdAsync(int id, CancellationToken cancellationToken)
-        {
-            return await _databaseContext.Vacations.FindAsync(id);
-        }
-      
+//        // Récupère un workflow par ID de manière asynchrone
+//        public async Task<WorkFlow> GetByIdAsync(string id, CancellationToken cancellationToken)
+//        {
+//            var filter = Builders<WorkFlow>.Filter.Eq(w => w.Id, id);
+//            return await _database.Collection.FindAsync(filter, cancellationToken: cancellationToken).FirstOrDefaultAsync();
+//        }
 
-        //Ajoute un congé (Vacation) de manière asynchrone
-        public async Task<Vacation> AddAsync(Vacation vacation, CancellationToken cancellationToken)
-        {
-            _databaseContext.Vacations.Add(vacation);
-            await _databaseContext.SaveChangesAsync();
-            return vacation;
-        }
-        
+//        // Ajoute un workflow de manière asynchrone
+//        public async Task<WorkFlow> AddAsync(WorkFlow workflow, CancellationToken cancellationToken)
+//        {
+//            await _database.Collection.InsertOneAsync(workflow, cancellationToken: cancellationToken);
+//            return workflow;
+//        }
 
-        //Met à jour un congé existant de manière asynchrone
-        public async Task<bool> UpdateAsync(Vacation vacation, CancellationToken cancellationToken)
-        {
-            // Modifie l'état de l'entité pour indiquer qu'elle est modifiée
-            _databaseContext.Entry(vacation).State = EntityState.Modified;
+//        // Met à jour un workflow existant de manière asynchrone
+//        public async Task<bool> UpdateAsync(WorkFlow workflow, CancellationToken cancellationToken)
+//        {
+//            var filter = Builders<WorkFlow>.Filter.Eq(w => w.Id, workflow.Id);
+//            var update = Builders<WorkFlow>.Update
+//                .Set(w => w.Name, workflow.Name)
+//                .Set(w => w.Description, workflow.Description)
+//                .Set(w => w.CurrentStep, workflow.CurrentStep)
+//                .Set(w => w.Status, workflow.Status);
 
-            try
-            {
-                // Enregistre les modifications dans la base de données
-                await _databaseContext.SaveChangesAsync();
-                // Renvoie un booléen indiquant le succès de la mise à jour
-                return true;
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Gestion des conflits de concurrence si nécessaire
-                return false;
-            }
-        }
+//            var updateResult = await _database.Collection.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
+//            return updateResult.IsModifiedCountChanged;
+//        }
 
-        // Supprime un conge (Vacation) par ID de manière asynchrone
-        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
-        {
-            // Recherche l'utilisateur en fonction de son ID
-            var vacationsToDelete = await _databaseContext.Vacations.FindAsync(id);
-
-            if (vacationsToDelete != null)
-            {
-                // Supprime l'utilisateur de la base de données
-                _databaseContext.Vacations.Remove(vacationsToDelete);
-                // Enregistre les modifications dans la base de données
-                await _databaseContext.SaveChangesAsync();
-                // Renvoie un booléen indiquant le succès de la suppression
-                return true;
-            }
-            else
-            {
-                // Renvoie false si l'utilisateur n'est pas trouvé
-                return false;
-            }
-        }
-        
-    }
-}
+//        // Supprime un workflow par ID de manière asynchrone
+//        public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken)
+//        {
+//            var filter = Builders<Workflow>.Filter.Eq(w => w.Id, id);
+//            var deleteResult = await _database.Collection.DeleteOneAsync(filter, cancellationToken: cancellationToken);
+//            return deleteResult.DeletedCount > 0;
+//        }
+//    }
+//}
